@@ -1,14 +1,14 @@
 # 使用 Node.js 镜像进行前端编译
-# FROM node:latest AS build
+FROM node:latest AS build
 
-# # 设置工作目录
-# WORKDIR /app
+# 设置工作目录
+WORKDIR /app
 
-# # 复制所有源文件
-# COPY . .
+# 复制所有源文件
+COPY . .
 
-# # 运行构建命令
-# RUN npm install && npm run build
+# 运行构建命令
+RUN npm install && npm run build-only
 
 # 使用 Caddy 镜像作为最终的运行环境
 FROM caddy:latest
@@ -22,6 +22,4 @@ RUN sed -ie "s/https/http/g" /etc/apk/repositories
 COPY Caddyfile /etc/caddy/Caddyfile
 
 # 复制前端构建的静态文件到 Caddy 的 web 根目录
-# COPY --from=build /app/dist /usr/share/caddy
-
-COPY dist /usr/share/caddy
+COPY --from=build /app/dist /usr/share/caddy

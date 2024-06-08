@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  kexie-chat-mariadb-2024:
+    container_name: kexie-chat-mariadb-2024
+    image: mariadb
+    restart: always
+    privileged: true
+    volumes:
+      - ./mariadb-data:/var/lib/mysql
+    environment:
+      MARIADB_USER: kexie-chat
+      MARIADB_PASSWORD: password # 请自行修改
+      MARIADB_DATABASE: kexie-chat
+      MARIADB_ROOT_PASSWORD: password # 请自行修改
+
+  kexie-chat-service-2024:
+    container_name: kexie-chat-service-2024
+    image: docker.kexie.space/kexie/kexie-chat-service-2024
+    restart: always
+    environment:
+      SET_CONTAINER_TIMEZONE: "true"
+      CONTAINER_TIMEZONE: Asia/Shanghai
+      TZ: Asia/Shanghai
+    volumes:
+      - ./config/application.yml:/app/application.yml
+      # - ./config/application-prod.yml:/app/application-prod.yml
+      # - ./config/application.properties:/app/application.properties
+    depends_on:
+      - kexie-chat-mariadb-2024
+
+  kexie-chat-web-2024:
+    container_name: kexie-chat-web-2024
+    image: docker.kexie.space/kexie/kexie-chat-web-2024
+    restart: always
+    ports:
+      - 15005:80
+    environment:
+      BACKEND_URL: "kexie-chat-service-2024:80"
+      BACKEND_HOST: "chat.kexie.space"
